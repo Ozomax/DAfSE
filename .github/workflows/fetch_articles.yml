@@ -1,0 +1,33 @@
+name: Fetch Latest Blog Posts
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # Runs every hour
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  fetch-articles:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: pip install feedparser beautifulsoup4 requests
+
+      - name: Fetch and Update Blog Posts
+        run: python scripts/fetch_articles.py
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "Updated latest blog posts" || echo "No changes to commit"
+          git push
