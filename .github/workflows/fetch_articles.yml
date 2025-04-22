@@ -35,5 +35,6 @@ jobs:
           git config --global --unset credential.helper
           git remote set-url origin https://x-access-token:${GH_PAT}@github.com/Ozomax/DAfSE.git
           git fetch origin
+          git pull --rebase origin main  # Add this line to rebase your changes
           git push origin HEAD:main
 
