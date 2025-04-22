@@ -25,9 +25,11 @@ jobs:
         run: python scripts/fetch_articles.py
 
       - name: Install GitHub CLI
-        uses: cli/cli-action@v2
-        with:
-          version: latest
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt-get update
+          sudo apt-get install gh -y
 
       - name: Commit and Create Pull Request
         env:
