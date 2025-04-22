@@ -26,13 +26,14 @@ jobs:
 
       - name: Commit and Push Changes
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          set -x
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add README.md
           git commit -m "Updated latest blog posts" || echo "No changes to commit"
-          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/Ozomax/DAfSE.git
+          git config --global --unset credential.helper
+          git remote set-url origin https://x-access-token:${GH_PAT}@github.com/Ozomax/DAfSE.git
           git fetch origin
-          git push origin HEAD:main || (sleep 5 && git push origin HEAD:main)
+          git push origin HEAD:main
+
