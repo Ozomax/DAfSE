@@ -24,17 +24,36 @@ jobs:
       - name: Fetch and Update Blog Posts
         run: python scripts/fetch_articles.py
 
-      - name: Commit and Push Changes
+      - name: Install GitHub CLI
+        uses: cli/cli-action@v2
+        with:
+          version: latest
+
+      - name: Commit and Create Pull Request
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create a new branch with timestamp to avoid conflicts
+          BRANCH_NAME="update-blog-posts-$(date +%s)"
+          git checkout -b $BRANCH_NAME
+
+          # Stage and commit the blog post update
           git add README.md
-          git commit -m "Updated latest blog posts" || echo "No changes to commit"
+          git commit -m "Update latest blog posts" || echo "No changes to commit"
+
+          # Use the PAT to push the branch
           git config --global --unset credential.helper
           git remote set-url origin https://x-access-token:${GH_PAT}@github.com/Ozomax/DAfSE.git
-          git fetch origin
-          git pull --rebase origin main  # Add this line to rebase your changes
-          git push origin HEAD:main
+          git push origin $BRANCH_NAME
 
+          # Authenticate and create PR using GitHub CLI
+          echo "${GH_PAT}" | gh auth login --with-token
+          gh pr create \
+            --title "Update latest blog posts" \
+            --body "Automated update of latest blog posts." \
+            --base main \
+            --head $BRANCH_NAME \
+            || echo "PR already exists or failed"
